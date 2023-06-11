@@ -1,0 +1,250 @@
+<html>
+    <head>
+        <title>Atmiņas spēle</title>
+        <meta charset="UTF-8">
+        <style>
+            body {
+                background-color: #d4ffd8;
+                padding:0;
+            }
+            h1 {
+             font-size:50px;
+             color:#384d00;
+            }
+            label {
+                color: #227722;
+                font-size:30px;
+                text-align: center;
+            }
+            button {
+                 background-color: #227722;
+                  border: none;
+                  color: white;
+                  padding: 15px 32px;
+                  text-align: center;
+                  text-decoration: none;
+                  display: inline-block;
+                  font-size: 16px;
+                  border-radius:5em;
+                  margin: 10px 25px;
+            }
+            .karte{
+
+                width:200px;
+                height: 150px;
+                margin:10px;
+                padding:20px;
+                background-color: #384d00;
+                color: white;
+                text-align:center;
+
+                font-size: 20px;
+            }
+            .vards{
+                width: 150px;
+                height: 100px;
+                margin:10px;
+                padding:20px;
+                background-color: white;
+                color:white;
+                text-align:center;
+
+                font-size: 20px;
+            }
+            * {
+                box-sizing: border-box;
+            }
+
+
+            #laukums {
+                margin: 0 auto;
+                padding: 20px 0;
+
+                justify-content: center;
+                visibility: hidden;
+                display: grid;
+                grid-template-columns: 0px 0px 0px 0px;
+                gap: 20px;
+
+            }
+
+            #punkti{
+                text-align: center;
+                font-size:50px;
+                color:#384d00;
+            }
+
+        </style>
+    </head>
+    <body>
+        <div id="sakums">
+            <p id="skaits"></p>
+
+            <center><h1>Atmiņas spēle</h1></center>
+            <center><label>IZVĒLIES SPĒLES LAUKUMA IZMĒRUS!</label></center>
+            <br>
+
+            <center>
+                <button onclick="Sheepboi(2)">2 x 2</button>
+                <button onclick="Sheepboi(4)">4 x 4</button>
+                <button onclick="Sheepboi(6)">6 x 6</button>
+            </center>
+        </div>
+        <p id="punkti"></p>
+        <div id="laukums"></div>
+        <button type="button" onclick="fetchResults()">Labākie rezultāti</button>
+        <p id="top"></p>
+        <script>
+            let bildes=["./assets/apšukungi.jpg","./assets/austersēnes.jpg","./assets/baravikas.jpg","./assets/bērzlape.jpg","./assets/bērzu-beka.jpeg","./assets/celmenes.jpg","./assets/dižsardzenes.jpg","./assets/gailenes.jpg","./assets/priežubeka.jpg","./assets/pūpēdis.jpeg","./assets/rudmieses.jpg","./assets/sarkanāmušmire.jpg","./assets/ķiploku-vītene.jpg","./assets/sviestabekas.jpg","./assets/tintenes.jpg","./assets/vilnītis.jpg","./assets/vistene.jpg","./assets/Čigānene.jpg"];
+            let vardi=["Apšubeka","Austeru sēnes","Baravikas","Bērzlapes","Bērzu bekas","Celmenes","Dižsardzenes","Gailenes","Priežubekas","Pūpēdis","Rudmieses","Sarkanā mušmire","Ķiploku vītene","Sviestabekas","Tintenes","Vilnītis","Vistene","Čigānene"];
+            let myarray=[];
+            const berns = document.getElementById("laukums").childNodes;
+            let skaits=0;
+            let punkti=0;
+            let pirmais;
+
+            let klik=0;
+            let saraksts=[];
+            let laukums= document.getElementById("laukums");
+
+            var vards="Darta";
+            var punktini=11;
+
+
+            function fetchResults(){
+                    var dict={vards:vards,laiks:skaits};
+                    console.log(JSON.stringify(dict));
+                    fetch('https://dgrivane.pythonanywhere.com/send',{
+                        method:'POST',
+                        headers: {'Content-Type':'application/json'},
+                        body:JSON.stringify(dict)
+                    })
+                    .then(res => res.json())
+                    .then(data => document.getElementById("top").innerHTML =
+                    "Labākais rezultāts "+data[0].punktini+" punkti "+data[0].vards)
+                }
+
+
+
+
+
+
+            function parbaude(item){
+                let lieta=document.getElementById(item);
+                let pir=document.getElementById(pirmais);
+                        if (lieta.value == pir.value){
+                            punkti++;
+                            vai_sakrit=true;
+
+                            drikst_turpinat=true;
+                       }else{
+                           setTimeout(function(){
+                                lieta.style.backgroundImage="url('./assets/sūnas-aizmugure.jpg')";
+                                pir.style.backgroundImage="url('./assets/sūnas-aizmugure.jpg')";
+                                lieta.innerHTML="";
+                                pir.innerHTML="";
+                           },1000);
+                        }
+
+
+                }
+
+            function tests(item){
+                console.log(item+"-------")
+                let bildite=document.createElement("div");
+                bildite.className="karte";
+                bildite.id="b"+item;
+                bildite.value="";
+                bildite.onclick=function(){
+                        bildite.style.backgroundImage="url("+bildes[item]+")";
+                        bildite.classList.add('flip');
+                        //skaits++;
+                        bildite.value=item;
+                        if(klik==0) pirmais=bildite.id; else parbaude(bildite.id);
+
+                        klik=(klik+1)%2;
+
+                }
+                bildite.style.backgroundImage="url('./assets/sūnas-aizmugure.jpg')";
+                bildite.style.backgroundSize="cover";
+
+                let kartina=document.createElement("div");
+                kartina.style.backgroundSize="cover";
+                kartina.className="karte";
+                kartina.id="k"+item;
+                kartina.value="";
+                kartina.style.backgroundImage="url('./assets/sūnas-aizmugure.jpg')";
+                kartina.onclick=function() {
+                        kartina.innerHTML=vardi[item];
+                        kartina.style.backgroundImage="";
+                        kartina.classList.add('flip');
+                        //skaits++;
+                        kartina.value=item;
+                        if(klik==0) pirmais=kartina.id; else parbaude(kartina.id);
+                        klik=(klik+1)%2;
+                }
+                document.getElementById("laukums").appendChild(bildite);
+                document.getElementById("laukums").appendChild(kartina);
+            }
+
+            function anName(poga) {
+            	let newId=Math.floor(Math.random() * 36);
+            	poga.setAttribute("name", newId);
+            	console.log(newId);
+            }
+
+            function removeAllChildNodes() {
+                let laukums=document.getElementById("laukums");
+                while (laukums.firstChild) {
+                    laukums.removeChild(laukums.firstChild);
+                }
+            }
+
+            function Sheepboi(n){
+                document.getElementById("punkti").innerHTML="";
+	            skaits=0;
+                klik=0;
+                punkti=0;
+                let poga=document.getElementsByTagName("button");
+
+                removeAllChildNodes();
+                let myarray=[];
+                let saraksts=[];
+                for (let k=0;k<(n*n)/2;k++){
+                    var rand=Math.floor(Math.random()*bildes.length);
+                    if(myarray.indexOf(rand) !== -1){
+                        while(myarray.indexOf(rand) !== -1){
+                            var rand=Math.floor(Math.random()*bildes.length);
+                        }
+                        myarray.push(rand);
+                    } else{
+                        myarray.push(rand);
+                    }
+                }
+                myarray.forEach(tests);
+                var berni=document.getElementById("laukums").childNodes;
+                berni.forEach(anName);
+                for (i = 0; i < berni.length; i++) {
+                        saraksts.push(berns.item(i));
+                }
+                saraksts.sort(function(a, b) {
+                    var compA = a.getAttribute('name').toUpperCase();
+                    var compB = b.getAttribute('name').toUpperCase();
+                    return (compA < compB) ? -1 : (compA > compB) ? 1 : 0;
+                });
+
+                const templates = {
+                    2: '200px 200px',
+                    4: '200px 200px 200px 200px',
+                    6: '200px 200px 200px 200px 200px 200px',
+                }
+                laukums.style.gridTemplateColumns = templates[n];
+                laukums.style.visibility = 'visible';
+                for (i = 0; i < saraksts.length; i++) {
+                    laukums.appendChild(saraksts[i]);
+                }
+            }
+
+        </script>
+    </body>
+</html>
